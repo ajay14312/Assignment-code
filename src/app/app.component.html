@@ -1,0 +1,57 @@
+<header class="header">
+  <div class="col-md-6">
+    <input type="text" placeholder="Search by" [(ngModel)]="searchPhrase" class="input-width form-control input-sm" [disabled]="disableSearchField || (products && products.length === 0)"/>
+    <button type="button" (click)="search(searchPhrase)" [disabled]="searchPhrase === ''" class="btn btn-default" [ngClass]="searchPhrase !== ''?'btn-primary':''">Search</button>
+
+    <button type="button" (click)="clear()" [disabled]="searchPhrase === ''" class="btn btn-default" [ngClass]="searchPhrase !== ''?'btn-danger':''">Clear</button>
+  </div>
+
+  <div class="col-md-3">
+    <label class="text-font">Sort by:</label>
+    <span class="link active" (click)="sortBy('name')">Name</span> <span class="link">|</span>
+    <span class="link" (click)="sortBy('price')">Price</span>
+  </div>
+  <div class="col-md-3">
+    <button type="button" (click)="addProduct('add')" class="btn btn-info">Add Product</button>
+    <button type="button" (click)="clear()" class="btn btn-info" *ngIf="products && products.length === 0 && !showLoad && !isFormAppeared">Fetch Products</button>
+  </div>
+</header>
+
+<!-- <br/> -->
+<div class="container section-transperant">
+  <label class="text-font section-label" *ngIf="products && products.length === 0 && !showLoad && !isFormAppeared">Please try fetch products</label>
+  <section *ngIf="!isFormAppeared && !showLoad" class="col-md-offset-4">
+    <div class="section-div-padding" *ngIf="products && products.length !== 0">
+      <input type="checkbox" (change)="selectAll()" [checked]="isAllSelected"/>
+      <label class="text-font section-label">Select all</label>
+      <button *ngIf="isAllSelected" (click)="removeAll()" class="btn btn-danger">Remove All</button>
+    </div>
+    <br/>
+    <div *ngFor="let product of products" [hidden]="showLoad" class="section-div">
+      <div class="col-md-3 div-padding">
+        <input type="checkbox" class="form-check-input" (change)="selectChange(product)" [checked]="product.checked" />
+        <label class="text-font">{{ product.name }}</label>
+        <b class=" section-label">{{ product.price }}$</b>
+      </div>
+      <div>
+        <button (click)="removeProduct(product)" class="btn btn-danger" [ngClass]="!product.checked || isAllSelected?'hide-btn':''">remove</button>
+        <button (click)="editProduct(product, 'edit')" class="btn btn-info" [ngClass]="!product.checked || isAllSelected?'hide-btn':''">Edit</button>
+      </div>
+    </div>
+  </section>
+
+  <div *ngIf="showLoad">Loading...</div>
+
+  <form *ngIf="isFormAppeared || showAddProductForm" (ngSubmit)="onSubmit(productObj)" #editForm="ngForm" class="container">
+    <div class="form-group">
+      <label for="title">Name</label>
+      <input type="text" class="form-control input-color" required name="name" [(ngModel)]="productObj.name">
+    </div>
+    <div class="form-group">
+      <label for="author">Price</label>
+      <input type="text" class="form-control input-color" required name="price" [(ngModel)]="productObj.price" (keyup)="checkPrice(productObj.price)">
+    </div>
+    <span class="btn btn-danger" type="button" (click)="cancelEdit()">Cancel</span>
+    <button type="submit" class="btn btn-success" [disabled]="!editForm.dirty || productObj.price<1 || isPriceNum">Submit</button>
+  </form>
+</div>
